@@ -1,0 +1,1 @@
+web: nodemon -r esm server/server.js

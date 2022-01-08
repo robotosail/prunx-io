@@ -1,0 +1,23 @@
+{
+  "name": "prunx-io",
+  "version": "2.2.7",
+  "description": "Prunx-io game, a 3d multiplayer game made mostly with javascript",
+  "main": "client/index.html",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon server/server.mjs",
+    "dev": "nodemon server/server.mjs"
+  },
+  "dependencies": {
+    "@socket.io/admin-ui": "0.2.0",
+    "esm": "3.2.25",
+    "express": "4.17.2",
+    "socket.io": "4.4.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  },
+  "keywords": [],
+  "author": "robotosail",
+  "license": "ISC"
+}

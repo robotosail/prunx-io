@@ -1,0 +1,31 @@
+v1.0.8
+    >> allowed player to be able to customize controls
+    >> fixed some bugs with the jumping
+    >> made chat scroll on new message
+    >> working on player been able to make private games
+    >> working on timer being async
+    >> new guns coming soon
+    >> working on in game servers
+    >> fixed bugs when typing
+
+v2.2.3
+    >> allowed player to be able to jump on some objects
+    >> player can now make new games
+    >> made timer async
+    >> working on the collision detection
+    >> added new maps
+        ## village map
+        ## firefly map
+    >> added map voting
+    >> working on bugs with chat, when new game is created
+
+v2.2.4
+    >> fixed bug in jumping
+    >> added new weapon
+    >> working on hp
+
+v2.2.5
+    >> added healthbar to the game
+    >> new gun coming soon
+v2.2.6
+    >> updated files to support latest version of es6m
