@@ -1,6 +1,6 @@
 import { updatePlayerPosition, createPlayer, addOtherPlayer, removeOtherPlayer, updatePlayerData, playerForId, playerHp, alive } from "./player.js";
 // import { io } from "https://cdn.socket.io/4.4.0/socket.io.esm.min.js";
-import { controls, scene } from "./three.js";
+import { scene } from "./three.js";
 import { vote, vote2, count1, vote_counter, fireflymap, count2 } from "./map.js";
 import { createBullet, updateBulletPosition, addOtherBullet, removeOtherBullet, updateBulletData } from "./weapon.js";
 import { otherPlayersId, otherPlayer } from "./player.js";
@@ -29,21 +29,18 @@ function connects() {
   sock.on("createPlayer", function (data) {
     createPlayer(data);
   });
-  controls.addEventListener("lock", function () {
-    sock.on("addOtherPlayer", function (data) {
-      addOtherPlayer(data); //adds player when someone joins
-    });
+  sock.on("addOtherPlayer", function (data) {
+    addOtherPlayer(data); //adds player when someone joins
+  });
   //happens when user moves
   sock.on("updatePosition", function (data) {
     updatePlayerPosition(data); //it updates the players position
   });
-
   sock.on("removeOtherPlayer", function (data) {
     removeOtherPlayer(data); //removes player when someone leaves the game
   });
   sock.emit("requestOldPlayers", {}); // adding the old players
   /////
-  })
 
   //// Bullet
   sock.on("createBullet", function (data) {
@@ -63,7 +60,7 @@ function connects() {
   ////
 
   // //shows the player name tag
-  sock.emit("nameTag", sock.id)
+  sock.emit("nameTag", sock)
 
   //happens when user leaves game
   sock.on("LeaveGame", function (data) {
