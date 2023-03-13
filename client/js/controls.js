@@ -1,5 +1,5 @@
 //"use strict";
-import {camera, controls} from "./three.js";
+import {camera, controls, groundBody} from "./three.js";
 import {moveSpeed, playerBody, updatePlayerData, playerData, updateCameraPosition} from "./player.js";
 import {scope} from "./scope.js";
 import {sock} from "./client.js";
@@ -8,12 +8,15 @@ let moveForward = {value:false};
 let moveBackward = {value:false};
 let moveLeft = {value:false};
 let moveRight = {value:false};
-let canJump = {value:false};
+let jump = { value: false };
+let canJump = true;
+let onGround = false;
 let movespeed = {value: 1};
 let crouch = false;
 let jumpspeed = {value:10};
-let jumpHeight = {value:20};
-const friction = 0.99;
+let jumpHeight = { value: 20 };
+
+let friction = 0.99;
 
 let w = "w";
 let a = "a";
@@ -44,6 +47,10 @@ let controlers = function () {
 
         return;
       }
+      else if (e.shiftKey) {
+        console.log("Shift pressed")
+        return;
+      }
       else{
         switch (e.key) {
         case w: // w
@@ -66,7 +73,15 @@ let controlers = function () {
           crouch = true;
           break;
         case space: // space
-          canJump.value = true;
+            // canJump = false;
+            if (onGround == true) {
+              playerBody.velocity.y = -jumpHeight.value;
+              onGround = false;
+              
+            }
+            else {
+              return;
+            }
           break;
         default:
           break;
@@ -92,9 +107,9 @@ let controlers = function () {
         case right: // right
           moveRight.value = false;
           break;
-        case space: // space
-          canJump.value = false;
-          break;
+        // case space: // space
+        //   jump.value = false;
+        //   break;
         case shift: // shift
           crouch = false;
           break;
@@ -102,75 +117,67 @@ let controlers = function () {
           break;
       }
     };
-
     function checkKeyStates() {
 
       if (moveForward.value) {
-        controls.moveForward(movespeed.value * friction);
-        updatePlayerData();
-        sock.emit("updatePosition", playerData);
+        controls.moveForward(movespeed.value);
+        // updatePlayerData();
+        // sock.emit("updatePosition", playerData);
+
       }
       if (moveBackward.value) {
         controls.moveForward(-movespeed.value);
-        updatePlayerData();
-        sock.emit("updatePosition", playerData);
+        // updatePlayerData();
+        // sock.emit("updatePosition", playerData);
       }
       if (moveRight.value) {
         controls.moveRight(-movespeed.value);
-        updatePlayerData();
-        sock.emit("updatePosition", playerData);
+        // updatePlayerData();
+        // sock.emit("updatePosition", playerData);
       }
       if (moveLeft.value) {
         controls.moveRight(movespeed.value);
-        updatePlayerData();
-        sock.emit("updatePosition", playerData);
+        // updatePlayerData();
+        // sock.emit("updatePosition", playerData);
+      }
+      if (playerBody.position.y >= -3) {
+        onGround = true;
+        // updatePlayerData();
+        // sock.emit("updatePosition", playerData);
       }
 
-      // allows the player to jump
-      if (canJump.value) {
-        playerBody.velocity.y -= jumpspeed.value;
+      // updating the players position on the server side
         updatePlayerData();
         sock.emit("updatePosition", playerData);
-        // setTimeout(function () {
-        // }, 1000);
-        // canJump.value = false;
-      }
-      if (canJump.value && playerBody.velocity.y <= -jumpHeight.value) {
-        canJump.value = false;
-      }
-      //to make the player come back down after jumping
-      else if (canJump.value === false) {
-        playerBody.velocity.y += jumpspeed.value;
-        updatePlayerData();
-        sock.emit("updatePosition", playerData);
-      }
-      //the crouch
-      if (crouch && playerBody.velocity.y <= -3) {
-        playerBody.velocity.y += jumpspeed.value;
-        updatePlayerData();
-        sock.emit("updatePosition", playerData);
-      }
-      //stop crouching
-      else if (crouch === false && playerBody.velocity.y >= -6) {
-        playerBody.velocity.y -= jumpspeed.value;
-        updatePlayerData();
-        sock.emit("updatePosition", playerData);
-      }
+      // //the crouch
+      // if (crouch && playerBody.velocity.y <= -3) {
+      //   playerBody.velocity.y += jumpspeed.value;
+      //   updatePlayerData();
+      //   sock.emit("updatePosition", playerData);
+      // }
+      // //stop crouching
+      // else if (crouch === false && playerBody.velocity.y >= -6) {
+      //   playerBody.velocity.y -= jumpspeed.value;
+      //   updatePlayerData();
+      //   sock.emit("updatePosition", playerData);
+      // }
+      
+      // updating the players position on the server
+      
     }
 
     function animatePlayer(data) {
       requestAnimationFrame(animatePlayer);
-      // detectcontrols();
       if (playerBody) {
         updateCameraPosition();
 
         checkKeyStates();
-        // camera.lookAt(player.position);
         playerBody.position.set(
           camera.position.x,
           camera.position.y,
           camera.position.z
         );
+        
       }
     }
     animatePlayer();
@@ -178,7 +185,7 @@ let controlers = function () {
     // event listener for jumping
     window.addEventListener("keypress", function (e) {
       if (e.key === " ") {
-        canJump.value = true;
+        jump.value = true;
       }
     });
     window.addEventListener("keydown", move, false);
@@ -296,7 +303,7 @@ export{
   jumpspeed,
   jumpHeight,
   controlers,
-  canJump,
+  jump,
   moveForward,
   moveBackward,
   moveLeft,

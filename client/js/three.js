@@ -12,7 +12,7 @@ collideObject.castShadow = true;
 
 function cannonInit(){
   world = new CANNON.World();
-  world.gravity.set(0, 9.8, 0); //setting the gravity of the world
+  world.gravity.set(0,27, 0); //setting the gravity of the world
   world.broadphase = new CANNON.NaiveBroadphase();  //Detect coilliding objects
   world.solver.iterations = 10; // collision detection sampling rate
 }
@@ -20,6 +20,7 @@ cannonInit();
 
 function init() {
   scene = new THREE.Scene();
+
   //	the camera
   camera = new THREE.PerspectiveCamera(
     200,
@@ -27,6 +28,8 @@ function init() {
     0.1,
     1000
   );
+
+  camera.position.y = -3
   // camera.position.z =
   //   Math.floor(Math.random() * -347) + 1 ||
   //   Math.floor(Math.random() * 338) + 1 ||
@@ -70,11 +73,10 @@ function init() {
   //  event listner for change
   controls.addEventListener("change", render);
 
-
   /// ------------------\\\
   //this makes the floor
   const groundShape = new CANNON.Plane();
-  // const groundMatcm = new CANNON.ContactMaterial(groundMat, groundMat, {friction:0, restitution: 1, 
+  // const groundMatcm = new CANNON.ContactMaterial(groundMat, groundMat, {friction:0, restitution: 1,
   //   contactEquationStiffness: 1e8,
   //   contactEquationRelaxation: 3,
   //   frictionEquationStiffness: 1e8,
@@ -90,7 +92,7 @@ function init() {
 //adds the floor to the physics world
 world.addBody(groundBody);
 // world.addContactMaterial(groundMatcm)
-groundBody.position.y = -2;  
+groundBody.position.y = 0;  
 
   floor.value = new THREE.Mesh(
     new THREE.PlaneGeometry(700, 700, 50, 50, 50),
@@ -206,5 +208,6 @@ export{
   init,
   THREE,
   CANNON,
-  groundMat
+  groundMat, 
+  groundBody
 }

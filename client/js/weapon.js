@@ -1,7 +1,7 @@
 // "use strict";
 import * as THREE from "../library/three.module.js";
-import {camera, scene} from "./three.js"
-import {otherPlayer} from "./player.js";
+import {camera, controls, scene} from "./three.js"
+import {otherPlayer, playerForId, otherPlayersId, playerId} from "./player.js"
 import {sock, clientId} from "./client.js";
 
 let leftclick = false;
@@ -18,28 +18,31 @@ let bullet,
 
 let bulletData;
 
-let otherBullets = [],
+const otherBullets = [],
   otherBulletsId = [];
 
-let createBullet = function (data) {
-  let bullet_geometry = new THREE.BoxGeometry(
-    data.bulletsizeX,
-    data.bulletsizeY,
-    data.bulletsizeZ
+/**
+ * creates a new bullet
+ * @param {*} data 
+ */
+function createBullet (data) {
+  bulletData = data;
+  const bullet_geometry = new THREE.BoxGeometry(
+    bulletData.bulletsizeX,
+    bulletData.bulletsizeY,
+    bulletData.bulletsizeZ
   );
-  let bullet_material = new THREE.MeshBasicMaterial({
+  const bullet_material = new THREE.MeshBasicMaterial({
     color: "purple"
   });
   bullet = new THREE.Mesh(bullet_geometry, bullet_material);
 
-  bulletData = data;
-
   bullet.rotation.set(0, 0, 0);
-  bullet.position.x = data.bulletx;
-  bullet.position.y = data.bullety;
-  bullet.position.z = data.bulletz;
+  bullet.position.x = bulletData.bulletx;
+  bullet.position.y = bulletData.bullety;
+  bullet.position.z = bulletData.bulletz;
 
-  bulletId = data.bulletId;
+  bulletId = bulletData.bulletId;
   // movSpeed = data.speed;
   // tunSpeed = data.turnSpeed;
 
@@ -49,7 +52,11 @@ let createBullet = function (data) {
   scene.add(bullet);
 };
 
-let updateCameraPosition2 = function () {
+/**
+ * updates the bullets position
+ * @param {*} data 
+ */
+function updateCameraPosition2 () {
   bullet.position.x = camera.position.x;
   bullet.position.y = camera.position.y;
   bullet.position.z = camera.position.z - 10;
@@ -60,8 +67,12 @@ let updateCameraPosition2 = function () {
   bullet.rotation.z = camera.rotation.z;
 };
 
-let updateBulletPosition = function (data) {
-  let someBullet = bulletForId(data.bulletId);
+/**
+ * updates the players bullet
+ * @param {*} data the bullets info
+ */
+function updateBulletPosition (data) {
+  const someBullet = bulletForId(data.bulletId);
 
   someBullet.position.x = data.bulletx;
   someBullet.position.y = data.bullety;
@@ -72,7 +83,11 @@ let updateBulletPosition = function (data) {
   someBullet.rotation.z = data.bulletr_z;
 };
 
-let updateBulletData = function () {
+/**
+ * updates the player's bullet on the server
+ * @param {*} data 
+ */
+function updateBulletData () {
   bulletData.bulletx = bullet.position.x;
   bulletData.bullety = bullet.position.y;
   bulletData.bulletz = bullet.position.z;
@@ -82,31 +97,45 @@ let updateBulletData = function () {
   bulletData.bulletr_z = bullet.rotation.z;
 };
 
-let addOtherBullet = function (data) {
-  let cube_geometry2 = new THREE.BoxGeometry(
-    data.bulletsizeX,
-    data.bulletsizeY,
-    data.bulletsizeZ
+/**
+ * adding the other player's bullet
+ * @param {*} data 
+ */
+function addOtherBullet (data) {
+  const cube_geometry2 = new THREE.BoxGeometry(
+    bulletData.bulletsizeX,
+    bulletData.bulletsizeY,
+    bulletData.bulletsizeZ
   );
-  let cube_material2 = new THREE.MeshBasicMaterial({
+  const cube_material2 = new THREE.MeshBasicMaterial({
     color: "blue"
   });
   otherBullet = new THREE.Mesh(cube_geometry2, cube_material2);
 
-  otherBullet.position.x = data.bulletx;
-  otherBullet.position.y = data.bullety;
-  otherBullet.position.z = data.bulletz;
+  otherBullet.position.x = bulletData.bulletx;
+  otherBullet.position.y = bulletData.bullety;
+  otherBullet.position.z = bulletData.bulletz;
 
   otherBulletsId.push(data.bulletId);
   otherBullets.push(otherBullet);
-  scene.add(otherBullet);
+  scene.add(bulletForId(data.bulletId));
+
 };
 
-let removeOtherBullet = function (data) {
+/**
+ * remove the bullet when player leaves
+ * @param {*} data 
+ */
+function removeOtherBullet (data) {
   scene.remove(bulletForId(data.bulletId));
 };
 
-let bulletForId = function (id) {
+/**
+ * gets the bullets id using the giving id
+ * @param {*} id bullets id
+ * @returns returns the bullet that partains to the id
+ */
+function bulletForId (id) {
   let index;
   for (let i = 0; i < otherBulletsId.length; i++) {
     if (otherBulletsId[i] === id) {
@@ -135,9 +164,17 @@ function shoot2(e) {
       break;
   }
 }
-window.addEventListener("mousedown", shoot);
-window.addEventListener("mouseup", shoot2);
 
+controls.addEventListener("lock", function () {
+  
+  window.addEventListener("mousedown", shoot);
+  window.addEventListener("mouseup", shoot2);
+});
+
+// controls.addEventListener("unlock", function () {
+//   window.removeEventListener("mousedown", shoot);
+//   window.removeEventListener("mouseup", shoot2);
+// })
 function checkBulletState() {
   for (let i = 0; i < bullets.length; i += 1) {
     if (bullets[i] === undefined) continue;
@@ -154,36 +191,41 @@ function checkBulletState() {
     //removing the bullet every 1sec
     setTimeout(function () {
       // bullet.alive = false;
-      scene.remove(bullet, otherBullet);
+      scene.remove(bulletForId(bulletData.id));
       //updating the bullet position
       updateBulletData();
       sock.emit("updateBulletPosition", bulletData);
-    }, 1000);
+    }, 1500);
     //pushing the bullet to the array.
     // bullets.push(bullet);
     scene.add(bullet);
+    // scene.add(bullet);
   }
 }
 
 function killing(a, d) {
-  let b1 = a.position.y - a.geometry.parameters.height / 2;
-  let t1 = a.position.y + a.geometry.parameters.height / 2;
-  let r1 = a.position.x + a.geometry.parameters.width / 2;
-  let l1 = a.position.x - a.geometry.parameters.width / 2;
-  let f1 = a.position.z - a.geometry.parameters.depth / 2;
-  let B1 = a.position.z + a.geometry.parameters.depth / 2;
-  let b2 = d.position.y - d.geometry.parameters.height / 2;
-  let t2 = d.position.y + d.geometry.parameters.height / 2;
-  let r2 = d.position.x + d.geometry.parameters.width / 2;
-  let l2 = d.position.x - d.geometry.parameters.width / 2;
-  let f2 = d.position.z - d.geometry.parameters.depth / 2;
-  let B2 = d.position.z + d.geometry.parameters.depth / 2;
-  if (t1 < b2 || r1 < l2 || b1 > t2 || l1 > r2 || f1 > B2 || B1 < f2) {
-    return false;
+
+  if (a.alive == true) { // make sure the player being shot at is still alive
+    
+    let b1 = a.position.y - a.geometry.parameters.height / 2;
+    let t1 = a.position.y + a.geometry.parameters.height / 2;
+    let r1 = a.position.x + a.geometry.parameters.width / 2;
+    let l1 = a.position.x - a.geometry.parameters.width / 2;
+    let f1 = a.position.z - a.geometry.parameters.depth / 2;
+    let B1 = a.position.z + a.geometry.parameters.depth / 2;
+    let b2 = d.position.y - d.geometry.parameters.height / 2;
+    let t2 = d.position.y + d.geometry.parameters.height / 2;
+    let r2 = d.position.x + d.geometry.parameters.width / 2;
+    let l2 = d.position.x - d.geometry.parameters.width / 2;
+    let f2 = d.position.z - d.geometry.parameters.depth / 2;
+    let B2 = d.position.z + d.geometry.parameters.depth / 2;
+    if (t1 < b2 || r1 < l2 || b1 > t2 || l1 > r2 || f1 > B2 || B1 < f2) {
+      return false;
+    }
+    
+  // send to the server that a player has just been killed
+    return sock.emit("playerKilled", a.name); //returning the id of the player that was just killed
   }
-  sock.emit("playerKilled", clientId);
-  // let answer = otherPlayers.indexOf(playerId);
-  // alert(answer);
 }
 let inte = setInterval(checkBulletState, 100);
 
@@ -193,7 +235,14 @@ function bulletAnimation(bulles) {
   if (bulles) {
     let delta = 1;
 
-    // killing(otherPlayer, bullet);
+    //// looping through the list of ids
+    for (let i = 0; i < otherPlayersId.length; i++){
+      const index = playerForId(otherPlayersId[i])
+      /// for each each id in the list run it in the player id matching function
+      // once there is a match run the collision with the current bullet
+        killing(index, bullet);
+    }
+
     // making a function for the bullet
     bullets.forEach((b) => {
       b.translateZ(-bulletspeed * delta); // move along the local z-axis

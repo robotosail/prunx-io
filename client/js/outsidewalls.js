@@ -1,6 +1,6 @@
 //"use strict";
 import { wallmaterial } from "./house.js";
-import { playerBody } from "./player.js";
+import { otherPlayerBody } from "./player.js";
 import {THREE, scene, collideObject, camera, CANNON, world} from "./three.js"
 
 //@Author: robotosail
@@ -30,20 +30,6 @@ frontwallBody.position.x = 3;
 frontwallBody.position.y = -50;
 frontwallBody.position.z = -350;
 
-// attempt collision detection
-function frontwalldetect(e){
-  if(camera.position.z <= frontwallBody.position.z - 3){
-    playerBody.position.z = frontwallBody.position.z + 4;
-    camera.position.z = frontwallBody.position.z + 4;
-}
-}
-
-// animate to make it less glitchy
-function toanimate(){
-  front_wall_animation = requestAnimationFrame(toanimate);
-  frontwalldetect();
-}
-toanimate();
 }
 front();
 
@@ -65,20 +51,6 @@ leftwallBody.position.x = 350;
 leftwallBody.position.y = -50;
 leftwallBody.position.z = -1;
 
-// attempt collision detection
-function leftwalldetect(e){
-  if(camera.position.x >= leftwallBody.position.x - 3){
-    playerBody.position.x = leftwallBody.position.x - 3;
-    camera.position.x = leftwall.position.x - 3;
-}
-}
-
-// to make less glitchy
-function animate1(){
-  left_wall_animation = requestAnimationFrame(animate1);
-  leftwalldetect();
-}
-animate1();
 }
 left();
 
@@ -100,23 +72,8 @@ backwallBody.position.x = 1;
 backwallBody.position.y = -50;
 backwallBody.position.z = 350;
 
-// attempt collision detection
-function backwalldetect(e){
-  if(camera.position.z >= 347){
-    playerBody.position.z = 346.9;
-}
-}
-
-// to make less glitchy
-function animate2(){
-  back_wall_animation = requestAnimationFrame(animate2);
-  backwalldetect();
-}
-animate2();
 }
 back();
-
-
 
 
 // the right wall
@@ -138,19 +95,7 @@ rightwallBody.position.y = -50;
 rightwallBody.position.z = -0.5;
 wallsMesh.push(rightwall);
 wallsBody.push(rightwallBody);
-// attempt collision detection
-function rightwalldetect(e){
-  if(camera.position.x <= rightwallBody.position.x + 3){
-    playerBody.position.x = rightwallBody.position.x + 3;
-    camera.position.x = rightwall.position.x + 3;
-}
-}
-// to make less glitchy
-function animate3(){
-  right_wall_animation = requestAnimationFrame(animate3);
-  rightwalldetect();
-}
-animate3();
+
 }
 right();
 animate()

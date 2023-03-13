@@ -1,140 +1,137 @@
 //"use strict";
 // import { crateBody } from "./crates.js";
-import {camera, scene, collideObject, THREE, CANNON, world} from "./three.js";
-// the players body
-// let playerBody = new THREE.Mesh(
-//   new THREE.BoxGeometry(3, 5, 3),
-//   new THREE.MeshBasicMaterial({ color: 0x0ffff0 })
-// );
+import {camera, scene, collideObject, THREE, CANNON, world, groundMat} from "./three.js";
 
-// playerBody.receiveShadow = true;
-// playerBody.castShadow = true;
+let player, playerId, moveSpeed, turnSpeed, otherPlayer, otherPlayerBody;
 
-// // position of the player
-// function animation() {
-//   requestAnimationFrame(animation);
-//   playerBody.position.set(
-//     camera.position.x,
-//     camera.position.y + 1,
-//     camera.position.z
-//   );
-// }
-let player, playerId, moveSpeed, turnSpeed, otherPlayer, mass = 10, otherPlayerBody;
+let playerData, playerBody, playerHp = { value: 0 }, alive = {value:0};
 
-let playerData, playerBody;
+const otherPlayers = [],
+  otherPlayersId = [],
+  otherPlayersId2 = [];
+const slipperyMaterial = new CANNON.Material("slpperyMaterial");
+const cm = new CANNON.ContactMaterial(slipperyMaterial, groundMat, { friction: 1.0, restitution: 0 });
+world.addContactMaterial(cm)
 
-let otherPlayers = [],
-  otherPlayersId = [];
-  const slipperyMaterial = new CANNON.Material("slpperyMaterial");
-let createPlayer = function (data) {
-  // removing the friction
-  
-  const cm = new CANNON.ContactMaterial(slipperyMaterial, "groundMaterial", {friction: 1.0, restitution: 0.3})
-  const player_Shape = new CANNON.Box(new CANNON.Vec3(data.sizeX / 2, data.sizeY / 2, data.sizeZ / 2))
-  playerBody = new CANNON.Body({mass: mass, shape: player_Shape, material: slipperyMaterial});
-
-  let player_geometry = new THREE.BoxGeometry(
-    data.sizeX,
-    data.sizeY,
-    data.sizeZ
-  );
-  let player_material = new THREE.MeshBasicMaterial({
-    color: "blue"
-  });
-  player = new THREE.Mesh(player_geometry, player_material);
-
+/**
+ * creates a new instance of player
+ * @param {*} data players information
+ */
+function createPlayer(data) {
   playerData = data;
-
-  playerBody.position.x = data.x;
-  playerBody.position.y = data.y;
-  playerBody.position.z = data.z;
-
-  player.position.x = data.x;
-  player.position.y = data.y;
-  player.position.z = data.z;
-
-
+  // removing the friction
+  const player_Shape = new CANNON.Box(new CANNON.Vec3(data.sizeX / 2, data.sizeY / 2, data.sizeZ / 2))
+  playerBody = new CANNON.Body({mass: data.mass, shape: player_Shape, material: slipperyMaterial});
+  playerBody.position.set(data.x, data.y, data.z)
+  playerHp.value = data.hp;
+  alive.value = data.alive;
   playerId = data.playerId;
+
   moveSpeed = data.speed;
   turnSpeed = data.turnSpeed;
-
-  world.add(playerBody);
-  world.addContactMaterial(cm)
-  camera.add(player);
-  
-  
+  world.addBody(playerBody);
   updateCameraPosition();
 };
 
-let updateCameraPosition = function () {
+
+/**
+ * Updates the camera's position
+ */
+function updateCameraPosition() {
 
   camera.position.x = playerBody.position.x;
   camera.position.y = playerBody.position.y;
   camera.position.z = playerBody.position.z;
-
-  player.position.x = playerBody.position.x;
-  player.position.y = playerBody.position.y;
-  player.position.z = playerBody.position.z;
-
   // when the player rotates
-  playerBody.quaternion.copy(camera.quaternion);
-
-  player.rotation.x = camera.rotation.x;
-  player.rotation.y = camera.rotation.y;
-  player.rotation.z = camera.rotation.z;
+  // playerBody.quaternion.copy(camera.quaternion);
+  // console.log(playerBody)
 };
 
-let updatePlayerPosition = function (data) {
-  let somePlayer = playerForId(data.playerId);
+
+/**
+ * updates the otherplayers position
+ * @param {*} data holds the player information
+ */
+function updatePlayerPosition(data) {
+  const somePlayer = playerForId(data.playerId);
 
   somePlayer.position.x = data.x;
   somePlayer.position.y = data.y;
   somePlayer.position.z = data.z;
+  somePlayer.hp = data.hp;
+  somePlayer.alive = data.alive;
+  // somePlayer.alive = alive.value;
+  moveSpeed = data.speed;
 
   somePlayer.rotation.x = data.r_x;
   somePlayer.rotation.y = data.r_y;
   somePlayer.rotation.z = data.r_z;
 };
 
-let updatePlayerData = function () {
-  playerData.x = player.position.x;
-  playerData.y = player.position.y;
-  playerData.z = player.position.z;
-
-  playerData.r_x = player.rotation.x;
-  playerData.r_y = player.rotation.y;
-  playerData.r_z = player.rotation.z;
+/**
+ * update the player's data on the server
+ */
+function updatePlayerData() {
+  playerData.x = playerBody.position.x;
+  playerData.y = playerBody.position.y;
+  playerData.z = playerBody.position.z;
+  playerData.hp = playerHp.value;
+  playerData.alive = alive.value;
+  
+  playerData.r_x = camera.rotation.x;
+  playerData.r_y = camera.rotation.y;
+  playerData.r_z = camera.rotation.z;
 };
 
-let addOtherPlayer = function (data) {
+/**
+ * adding the otherplayer into the game so otherplayer can see them
+ */
+function addOtherPlayer(data) { // data = player info from the server
+const otherPlayer_Shape = new CANNON.Box(new CANNON.Vec3(playerData.sizeX / 2, playerData.sizeY / 2, playerData.sizeZ / 2))
+  otherPlayerBody = new CANNON.Body({ mass: playerData.mass, material: slipperyMaterial, shape: otherPlayer_Shape });
 
-
-const otherPlayer_Shape = new CANNON.Box(new CANNON.Vec3(data.sizeX / 2, data.sizeY / 2, data.sizeZ / 2))
-otherPlayerBody = new CANNON.Body({mass: mass, material: slipperyMaterial});
-otherPlayerBody.addShape(otherPlayer_Shape);
-
-  let cube_geometry = new THREE.BoxGeometry(data.sizeX, data.sizeY, data.sizeZ);
-  let cube_material = new THREE.MeshBasicMaterial({
+  const cube_geometry = new THREE.BoxGeometry(playerData.sizeX, playerData.sizeY, playerData.sizeZ);
+  const cube_material = new THREE.MeshBasicMaterial({
     color: "green"
   });
   otherPlayer = new THREE.Mesh(cube_geometry, cube_material);
-  otherPlayerBody.position.set(data.x, data.y, data.z);
-
-  otherPlayersId.push(data.playerId);
-  otherPlayers.push(otherPlayer);
-  world.add(otherPlayerBody);
-  scene.add(otherPlayer);
-  collideObject.push(otherPlayer);
-
+  otherPlayerBody.position.set(playerData.x, playerData.y, playerData.z);
+  /// pushing the old player data into the list
   
-  animate(); 
+  otherPlayer.name = data.playerId;
+  otherPlayer.hp = data.hp;
+  otherPlayer.alive = data.alive;
+  otherPlayersId.push( otherPlayer.name);
+
+  otherPlayers.push(otherPlayer);
+  world.addBody(otherPlayerBody);
+  scene.add(playerForId(otherPlayer.name));
+  
+  const playerHealth = document.createElement("div");
+  playerHealth.style.width = otherPlayer.hp+"px";
+  playerHealth.style.height = "20px";
+  playerHealth.textContent = "test";
+  playerHealth.style.position = "absolute"
+  playerHealth.style.top = "10%"
+  playerHealth.style.backgroundColor = "red";
+  document.body.append(playerHealth)
+  animate();
 };
 
-let removeOtherPlayer = function (data) {
+/**
+ * removing the player from the server when they disconnect
+ * @param {*} data player infromation 
+ */
+function removeOtherPlayer(data) {
   scene.remove(playerForId(data.playerId));
 };
 
-let playerForId = function (id) {
+/**
+ * loops through list of all the players and matches the player id with the giving id
+ * @param {*} id wanted player id
+ * @returns returns the player with the specific id
+ */
+function playerForId(id) {
   let index;
   for (let i = 0; i < otherPlayersId.length; i++) {
     if (otherPlayersId[i] === id) {
@@ -142,87 +139,18 @@ let playerForId = function (id) {
       break;
     }
   }
+  if (otherPlayersId[index] !== id) {
+    return `No player with the Id ${id} was found`
+  }
   return otherPlayers[index];
 };
-
-// the players legs
-let leg1 = new THREE.Mesh(
-  new THREE.BoxGeometry(1.2, 2, 1),
-  new THREE.MeshBasicMaterial({ color: 0x8b4513 })
-);
-
-// the leg position
-leg1.position.set(camera.position.x - 0.6, -5, camera.position.z);
-
-camera.add(leg1);
-
-leg1.receiveShadow = true;
-leg1.castShadow = true;
-
-// the players second legs
-let leg2 = new THREE.Mesh(
-  new THREE.BoxGeometry(1.2, 2, 1),
-  new THREE.MeshBasicMaterial({ color: 0x8b4513 })
-);
-
-// the leg position
-leg2.position.set(camera.position.x + 0.6, -5, camera.position.z);
-
-camera.add(leg2);
-
-// outline1
-let outline = new THREE.Mesh(
-  new THREE.BoxGeometry(0.2, 2, 1),
-  new THREE.MeshBasicMaterial({ color: 0x00f })
-);
-
-// the leg position
-outline.position.set(camera.position.x - 0.1, -5, camera.position.z);
-
-camera.add(outline);
-
-//outline2
-let outline2 = new THREE.Mesh(
-  new THREE.BoxGeometry(1, 0.2, 1),
-  new THREE.MeshBasicMaterial({ color: 0x00f })
-);
-
-// the leg position
-outline2.position.set(camera.position.x - 0.1, -7, camera.position.z);
-
-camera.add(outline2);
-
-// outline3
-let outline3 = new THREE.Mesh(
-  new THREE.BoxGeometry(2.5, 0.2, 1),
-  new THREE.MeshBasicMaterial({ color: 0x00f })
-);
-
-// the leg position
-outline3.position.set(camera.position.x - 0.001, -6, camera.position.z);
-
-camera.add(outline3);
-
+ 
 function animate(){
   requestAnimationFrame(animate);
+  // console.log(playerId)
+
   otherPlayer.position.copy(otherPlayerBody.position);
   otherPlayer.quaternion.copy(otherPlayerBody.quaternion);
-  // var contactNormal = new CANNON.Vec3();
-  // var upAxis = new CANNON.Vec3(0,1,0);
-//   playerBody.addEventListener("collide", function(e){ 
-//     var contact = e.contact;
-//     // console.log("sphere collided");
-//     // // playerBody.collisionResponse = 0; // no impact on other bodys
-//     // console.log(contact)
-//     if(contact.bi.id === playerBody.id)  // bi is the player body, flip the contact normal
-//     contact.ni.negate(contactNormal);
-// else
-//     contactNormal.copy(contact.ni); // bi is something else. Keep the normal as it is
-
-// // If contactNormal.dot(upAxis) is between 0 and 1, we know that the contact normal is somewhat in the up direction.
-// if(contactNormal.dot(upAxis) > 0.5) // Use a "good" threshold value between 0 and 1 here!
-//     canJump.value = true;
-//    } );
 }
 
 export{
@@ -236,7 +164,12 @@ export{
   addOtherPlayer,
   otherPlayer,
   otherPlayersId,
+  otherPlayersId2,
   updateCameraPosition,
+  playerForId,
   playerBody,
-  otherPlayerBody
+  otherPlayerBody,
+  playerId,
+  playerHp,
+  alive
 }

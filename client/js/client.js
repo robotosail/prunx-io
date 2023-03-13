@@ -1,11 +1,10 @@
-import {updatePlayerPosition, createPlayer, addOtherPlayer, removeOtherPlayer, updatePlayerData} from "./player.js";
-import { io } from "https://cdn.socket.io/4.4.0/socket.io.esm.min.js";
-import {scene} from "./three.js";
-import {vote, vote2, count1, vote_counter, fireflymap, count2} from "./map.js";
-import {createBullet, updateBulletPosition, addOtherBullet, removeOtherBullet, updateBulletData} from "./weapon.js";
+import { updatePlayerPosition, createPlayer, addOtherPlayer, removeOtherPlayer, updatePlayerData, playerForId, playerHp, alive } from "./player.js";
+// import { io } from "https://cdn.socket.io/4.4.0/socket.io.esm.min.js";
+import { scene } from "./three.js";
+import { vote, vote2, count1, vote_counter, fireflymap, count2 } from "./map.js";
+import { createBullet, updateBulletPosition, addOtherBullet, removeOtherBullet, updateBulletData } from "./weapon.js";
 import { otherPlayersId, otherPlayer } from "./player.js";
-import {log} from "./guicontrols.js";
-
+import { log } from "./guicontrols.js";
 const sock = io(
   {
     //helps player reconnect back to server
@@ -19,86 +18,59 @@ let clientRoom;
 
 function connects() {
   //shows the player when they connect
-   sock.on("connect", function () {
-  sock.emit("entergame", `someone joined the game`);
-  sock.emit("show code");
-
-  // //shows the player name tag
-    sock.emit("nameTag")
-
-    sock.emit("requestOldPlayers", {});
-    //the bullets
-    sock.emit("requestOldBullets", {});
-  
-  //happens when the user connects to the game
-  sock.on("join", function(data){
-    log({text: data})
+  sock.on("connect", function () {
+    sock.emit("entergame", `someone joined the game`);
+    // happens when the user joins the game
+    sock.on("entergame", function (data) {
+      log({ text: data, bgcolor: "purple" });
+    });
   });
-
-  // happens when the user joins the game
-  sock.on("entergame", function(data){
-    log({text: data, bgcolor: "purple"});
-  });
-
-  //happens when user leaves game
-  sock.on("LeaveGame", function(data){
-    log({text: data, bgcolor: "purple"});
-  });
-
-  //shows the user the game code
-  sock.on("show code", function (data) {
-    clientRoom = data;
-    console.log(clientRoom);
-    log({text: clientRoom});
-  });
-
-  //happens when users are chatting
-  sock.on("typing", function(data){
-    log({text: data})
-  }, clientRoom);
-
-  //happens when user moves
-  //it updates the players position
-  sock.on("updatePosition", function (data) {
-    updatePlayerPosition(data);
-  });
-
-  //creates player every time someone joins
+  ///// Player
   sock.on("createPlayer", function (data) {
     createPlayer(data);
   });
-
-  //adds player when someone joins
   sock.on("addOtherPlayer", function (data) {
-    addOtherPlayer(data);
+    addOtherPlayer(data); //adds player when someone joins
   });
-
-  //removes player when someone leaves the game
+  //happens when user moves
+  sock.on("updatePosition", function (data) {
+    updatePlayerPosition(data); //it updates the players position
+  });
   sock.on("removeOtherPlayer", function (data) {
-    removeOtherPlayer(data);
+    removeOtherPlayer(data); //removes player when someone leaves the game
   });
+  sock.emit("requestOldPlayers", {}); // adding the old players
+  /////
 
-  /**/
-  //when the user shoots
-  //it updates the players position
-  sock.on("updateBulletPosition", function (data) {
-    updateBulletPosition(data);
-  });
-
-  //creates bullet every time player shoots
+  //// Bullet
   sock.on("createBullet", function (data) {
-    createBullet(data);
+    createBullet(data); /// creates a new bullet
   });
-
-  //adds bullet when other player shoots
   sock.on("addOtherBullet", function (data) {
-    addOtherBullet(data);
+    addOtherBullet(data); //adds Bullet when someone joins
+  });
+  sock.on("updateBulletPosition", function (data) {
+    updateBulletPosition(data); //it updates the Bullets position
+  });
+  sock.on("removeOtherBullet", function (data) {
+    removeOtherBullet(data); //removes Bullet when someone leaves the game
+  });
+  sock.emit("requestOldBullets", {}); // adds the old bullets when a new player joins the game.
+
+  ////
+
+  // //shows the player name tag
+  sock.emit("nameTag", sock.id)
+
+  //happens when user leaves game
+  sock.on("LeaveGame", function (data) {
+    log({ text: data, bgcolor: "purple" });
+  });
+  //happens when users are chatting
+  sock.on("typing", function (data) {
+    log({ text: data })
   });
 
-  //removes bullet when someone leaves the game
-  sock.on("removeOtherBullet", function (data) {
-    removeOtherBullet(data);
-  });
 
   class ProgressBar {
     constructor(element, initialVal = 100) {
@@ -107,6 +79,10 @@ function connects() {
 
       this.setValue(initialVal);
     }
+    /**
+     * 
+     * @param {*} newValue 
+     */
     setValue(newValue) {
       if (newValue < 0) {
         newValue = 0;
@@ -125,24 +101,68 @@ function connects() {
   }
 
   //messages that the player has been killed
-  let hp = new ProgressBar(document.getElementById("progress-bar"));
-  let hplive = 100;
-  sock.on("kill_log", function (data) {
-    let blood = document.getElementById("blood");
-    hplive -= 5;
-    hp.setValue(hplive);
-    blood.style.display = "block";
+  const hp = new ProgressBar(document.getElementById("progress-bar"));
+  // let hplive = 100;
 
-    if (document.querySelector(".progress-bar-fill").style.width === "0%") {
-      log({text: `${otherPlayersId[1]} killed by ${data}`, bgcolor: "red"});
-      scene.remove(otherPlayer);
+  let thisplayer;
+
+  //// response to player being killed (aka the player doing the shooting)
+  /**
+   * @param data the current player
+   * @param player the player being shot at player
+   */
+  sock.on("kill_log", function (data, player) {
+    const currentPlayer = playerForId(player);
+    if (currentPlayer.hp == 0) {
+      console.log(`The player you are shooting (${currentPlayer.name}) at is dead`);
+      // removing the player from the scene
+      scene.remove(currentPlayer);
+      log({ text: `${player} killed by ${data}`, color: "red" });
+      sock.emit("resetPlayerPos");
+      // updating this info
+      updatePlayerData();
+      sock.emit("updatePosition", player);
     }
   });
 
+  /// --- only sent to the player being shot at
+  sock.on("kill_log2", function (data) {
+    const blood = document.getElementById("blood");
+    thisplayer = playerForId(data);
+
+    if (playerHp.value <= 0) { // check if the hp is less than 0
+      playerHp.value = 0
+      alive.value = false;
+    }
+    else { // else reduce health by 10
+      playerHp.value -= 10
+    }
+
+    thisplayer.hp = playerHp.value; // setting the players health on the server
+    hp.setValue(thisplayer.hp); // chaning the health
+    updatePlayerData(); // updating the new info
+    sock.emit("updatePosition", data);
+
+    if (playerHp.value <= 50) { // if player health is less than 50 show the blood
+      blood.style.display = "block";
+      blood.style.opacity += `${Math.abs(thisplayer.hp)}`;
+    }
+    const addHp = setInterval(function () {
+      if (playerHp.value !== 0 && playerHp.value !== 100) {
+        playerHp.value += 5
+        hp.setValue(playerHp.value);
+        blood.style.display = "none";
+      }
+      else {
+        clearInterval(addHp)
+      }
+    }, 5000)
+  })
   //happens when the game is updating
-  sock.on("game_update", function (data) {
+  sock.on("GameUpdate", function (data) {
     // alert(data);
-    document.getElementsByTagName("body")[0].innerHTML = data;
+    document.getElementsByTagName("body")[0].innerHTML = data.data;
+    setTimeout(window.location.reload(), 3000)
   });
 
   sock.on("clicked1", function () {
@@ -157,13 +177,13 @@ function connects() {
     count2.value = vote2.value;
     vote_counter[1].innerHTML = count2.value;
     fireflymap[1].classList.add("selected");
+    // });
   });
-});
 
 }
 connects();
 
-export{
+export {
   sock,
   clientId,
   connects

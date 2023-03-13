@@ -5,7 +5,7 @@ let bullet;
 function Bullet() {
   this.bulletId = bullets.length;
   this.bulletx = 10;
-  this.bullety = -10;
+  this.bullety = 100;
   this.bulletz = 1;
   this.bulletr_x = 0;
   this.bulletr_y = 0;

@@ -367,6 +367,7 @@ canvas {
   left: 37%;
   -webkit-appearance: none;
   -moz-appearance: none;
+  appearance: none;
   width: 35%;
   height: 2px;
 }
@@ -375,6 +376,7 @@ canvas {
 #range::-webkit-slider-thumb {
   -webkit-appearance: none;
   -moz-appearance: none;
+  appearance: none;
   width: 20px;
   height: 20px;
   border-radius: 50%;
@@ -422,6 +424,7 @@ canvas {
   left: 37%;
   -webkit-appearance: none;
   -moz-appearance: none;
+  appearance: none;
   width: 35%;
   height: 2px;
 }
@@ -430,6 +433,7 @@ canvas {
 #res::-webkit-slider-thumb {
   -webkit-appearance: none;
   -moz-appearance: none;
+  appearance: none;
   width: 20px;
   height: 20px;
   border-radius: 50%;
@@ -553,6 +557,7 @@ canvas {
   left: 37%;
   -webkit-appearance: none;
   -moz-appearance: none;
+  appearance: none;
   width: 35%;
   height: 2px;
 }
@@ -561,6 +566,7 @@ canvas {
 #crosssize::-webkit-slider-thumb {
   -webkit-appearance: none;
   -moz-appearance: none;
+  appearance: none;
   width: 20px;
   height: 20px;
   border-radius: 50%;
@@ -617,6 +623,7 @@ canvas {
   left: 37%;
   -webkit-appearance: none;
   -moz-appearance: none;
+  appearance: none;
   width: 35%;
   height: 2px;
 }
@@ -625,6 +632,7 @@ canvas {
 #UIsize::-webkit-slider-thumb {
   -webkit-appearance: none;
   -moz-appearance: none;
+  appearance: none;
   width: 20px;
   height: 20px;
   border-radius: 50%;
@@ -976,6 +984,7 @@ canvas {
   left: 37%;
   -webkit-appearance: none;
   -moz-appearance: none;
+  appearance: none;
   width: 35%;
   height: 2px;
 }
@@ -984,6 +993,7 @@ canvas {
 #mouse-x::-webkit-slider-thumb {
   -webkit-appearance: none;
   -moz-appearance: none;
+  appearance: none;
   width: 20px;
   height: 20px;
   border-radius: 50%;

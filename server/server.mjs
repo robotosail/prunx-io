@@ -1,17 +1,22 @@
 //importing the socket.io admin ui
 //visit https://admin.socket.io/ for admin commands
-import {createServer} from "http";
+import { createServer } from "http";
 import express from "express";
-import {Server} from 'socket.io';
+import { Server } from 'socket.io';
 import world from "./player_state.mjs";
-import world2  from "./bullet_state.mjs";
-import {instrument} from "@socket.io/admin-ui";
-import {makeId} from "./game.mjs";
+import world2 from "./bullet_state.mjs";
+import { instrument } from "@socket.io/admin-ui";
+import { makeId } from "./game.mjs";
 import dirname from "path"
+import { fileURLToPath } from 'url';
+import path from "path"
+import dotenv from "dotenv"
+dotenv.config()
 const port = process.env.PORT;
 const user = process.env.USER;
 const key = process.env.PASS;
- 
+// allows you to use __dirname
+// const __dirname = dirname(fileURLToPath(import.meta.url));
 //getting the express function
 const app = express();
 //the client rooms
@@ -24,7 +29,11 @@ const httpServer = createServer(app);
 const clientPath = `${dirname}/../client`;
 
 app.use(express.static(clientPath));
-
+// allows access to the use of theses scripts
+// app.use('/build/', express.static(path.join(__dirname, "/three/build")));
+// app.use('/jsm/', express.static(path.join(__dirname, "/three/examples/jsm")));
+// app.use('/dist/', express.static(path.join(__dirname, "/cannon-es/dist")));
+// app.use('/dist/', express.static(path.join(__dirname, "/cannon-es-debugger/dist")));
 const io = new Server(httpServer, {
   cors: {
     origin: ["https://admin.socket.io"],
@@ -37,57 +46,45 @@ instrument(io, {
   auth: { //can also be false
     type: "basic",
     username: user,
-    password:  key// "TgwmUthr33.js" is pAs
-  }
+    password: key// "TgwmUthr33.js" is pAs
+  },
+  //   /* options */
+    maxHttpBufferSize: 2e8,
+    pingTimeout: 60000,
 });
 // {
-  //   /* options */
-  //   maxHttpBufferSize: 2e8,
-  //   pingTimeout: 60000
-  // }
-  io.setMaxListeners(0);
-  
+//   /* options */
+//   maxHttpBufferSize: 2e8,
+//   pingTimeout: 60000
+// }
+// io.setMaxListeners(0);
+
+const list = []
+io.on("connection", (client) => {
+  const id = client.id;
+
   console.log("A user joined");
-  
-  io.on("connection", (client) => {
+
   //getting the amount of users connected to the server
-  // const count = io.engine.clientsCount;
+  console.log("There are " + io.engine.clientsCount);
 
   //the game code
-  let code = makeId(7);
+  // let code = makeId(7);
   // let code = "test"; // -- for debuggin only
-  client.join(code);
-  clientRooms.push(code);
+  // client.join(code);
+  // clientRooms.push(code);
 
-  const id = client.id;
-  console.log(`${id} joined ` + code);
-  console.log(clientRooms);
-
-  //when the user enters the game
-  client.on("entergame", (text) => {
-    io.to(code).emit("entergame", text);
-  });
-
-  //show the player the game code
-  client.on("show code", (data) => {
-    data = code;
-    io.to(code).emit("show code", data);
-  });
-
-  //when the user is chatting
-  client.on("typing", (text) => {
-    io.to(code).emit("typing", text);
-  });
-
-  //making the users see each other
-  world.addPlayer(id);
+  list.push(id)
+  console.log(list)
+  // console.log(clientRooms);
 
   //creating the player connection
-  let player = world.playerForId(id);
-  io.emit("createPlayer", player);
+  world.addPlayer(id);
+  const player = world.playerForId(id);
+  client.emit("createPlayer", player);
 
-  //brodcasting the other player
-  io.emit("addOtherPlayer", player);
+  //brodcasting the other player but the client
+  client.broadcast.emit("addOtherPlayer", player);
 
   client.on("requestOldPlayers", function () {
     for (let i = 0; i < world.players.length; i++) {
@@ -95,70 +92,52 @@ instrument(io, {
         client.emit("addOtherPlayer", world.players[i]);
     }
   });
-
   //updating the position of the player
   client.on("updatePosition", function (data) {
     let newData = world.updatePlayerData(data);
-    io.emit("updatePosition", newData);
+    client.broadcast.emit("updatePosition", newData);
   });
 
-  //making the players see the other players bullet
+  //creating the player connection
   world2.addBullet(id);
+  const bullet = world2.bulletForId(id);
+  client.emit("createBullet", bullet);
 
-  //creating the bullet connection
-  let bullet = world2.bulletForId(id);
-  io.emit("createBullet", bullet);
-
-  //brodcasting the other players bullet
-  io.emit("addOtherBullet", bullet);
+  //brodcasting the other bullet but the client
+  client.broadcast.emit("addOtherBullet", bullet);
 
   client.on("requestOldBullets", function () {
     for (let i = 0; i < world2.bullets.length; i++) {
       if (world2.bullets[i].bulletId !== id)
-        io.emit("addOtherBullet", world2.bullets[i]);
+        client.emit("addOtherBullet", world2.bullets[i]);
     }
   });
 
-  //updating the position of the bullets
+  //updating the position of the bullet
   client.on("updateBulletPosition", function (data) {
-    let newData2 = world2.updateBulletData(data);
-    io.emit("updateBulletPosition", newData2);
-    bullet.bulletZ += 10;
-  });
-
-  //when the user wants to create a new game
-  client.on("newGame", function () {
-    client.leave(code)
-    let roomName = makeId(7);
-    code = roomName;
-    // clientRooms[client.id] = roomName;
-    client.emit("gameCode", roomName);
-    client.join(roomName);
-    clientRooms.push(roomName);
-    io.to(roomName).emit("show code", roomName);    
-  });
-
-  // when the user wants to join a game
-  client.on("joinGame", function (gameCode) {
-    for (let i = 0; i < clientRooms.length; i++) {
-      if (gameCode === clientRooms[i]) {
-        console.log(gameCode)
-        client.emit("check");
-        // client.join(gameCode);
-      //   console.log(`${id} is now in room ${gameCode}`);
-      return;
-      } 
-      if (gameCode !== clientRooms[i]) {
-        console.log("wrong code");
-      return;
-      }
-    }
+    let newData = world2.updateBulletData(data);
+    client.broadcast.emit("updateBulletPosition", newData);
   });
 
   //happens when the player dies
-  client.on("playerKilled", function () {
-    client.broadcast.emit("kill_log", `${client.id}`);
-    // console.log(`${client.id} killed`);
+  client.on("playerKilled", function (data) {
+    let unknownPlayer = true;
+    for (let i = 0; i < list.length; i++) {
+      if (data == list[i]) { // first check if playerid is in the list of all the players
+        client.broadcast.to(data).emit("kill_log2", client.id); // sends to the specific player
+        unknownPlayer = false;
+        return io.emit("kill_log", client.id, data); //sends to all players
+      }
+      // else if (data !== list[i]) {
+      //   console.log("Not in list") // check if the player Id is in the list
+      //   io.emit("removeOtherPlayer", world.playerForId(data));
+      //   world.removePlayer(world.playerForId(data));
+      //   list.splice(i, 1);
+      // }
+    }
+    // if (unknownPlayer == true) {
+    //   // client.broadcast.to(data).disconnectSockets()
+    // }
   });
 
   client.on("clicked1", function () {
@@ -170,29 +149,35 @@ instrument(io, {
   });
 
   //show the player the game code
-  client.on("nameTag", function(data){
-    io.emit("nameTag");
+  client.on("nameTag", function (data) {
+    console.log(data)
+    client.broadcast.emit("nameTag", data);
   });
+  //when the user enters the game
+  client.on("entergame", (text) => {
+    io.emit("entergame", text);
+  });
+
+  //when the user is chatting
+  client.on("typing", (text) => {
+    io.emit("typing", text);
+  });
+
+  // io.emit("GameUpdate", { data: "Game has updated please refresh the page" })  
+
   //happens when the game is been updated
   // io.emit("game_update", "the game is been updated, please wait a while then refresh");
 
   //when the user leaves
-  client.on("disconnect", () => {
-    
-    ////
-    let index1 = clientRooms.indexOf(code);
-    //remove the clients room from the client arry
-    clientRooms.splice(index1, 1);
-    console.log(clientRooms);
-
+  client.on("disconnecting", () => {
+    console.log("There are " + io.engine.clientsCount + " players left in the server")
+    list.splice(list.indexOf(player.playerId), 1)
+    // io.in(id).disconnectSockets();
     console.log(`${id} left the game`);
-    io.to(code).emit("LeaveGame", `someone left the game`);
+    io.emit("LeaveGame", `someone left the game`);
     //removing the player when they leave
     io.emit("removeOtherPlayer", player);
     world.removePlayer(player);
-    //removing the bullet when player leaves
-    io.emit("removeOtherBullet", bullet);
-    world2.removeBullet(bullet);
   });
 });
 

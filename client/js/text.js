@@ -1,7 +1,7 @@
 import * as THREE from "../library/three.module.js";
 import {scene, camera} from "./three.js";
 import { clientId} from "./client.js";
-import { io } from "https://cdn.socket.io/4.4.0/socket.io.esm.min.js";
+// import { io } from "https://cdn.socket.io/4.4.0/socket.io.esm.min.js";
 
 
 let sock = io()
@@ -103,9 +103,9 @@ class Text {
 sock.on("nameTag", function(data){
   const playername = new Text({
     name: "name",
-    text: sock.id,
+    text: data,
     x: camera.position.x,
-    y: -6,
+    y: -16,
     z: camera.position.z,
     width: 5,
     height: 5,

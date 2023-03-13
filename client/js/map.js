@@ -1,4 +1,4 @@
-import { io } from "https://cdn.socket.io/4.4.0/socket.io.esm.min.js";
+// import { io } from "https://cdn.socket.io/4.4.0/socket.io.esm.min.js";
 import {map1} from "./villageMap.js";
 import {map2} from "./firefly.js";
 

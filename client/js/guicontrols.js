@@ -242,7 +242,7 @@ function say(){
 say();
 
 window.addEventListener("keydown", function (e) {
-  if (e.keyCode === 13) {
+  if (e.key === "Enter") {
     const chat = document.getElementById("inputmessage");
     chat.focus();
   }

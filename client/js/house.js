@@ -42,11 +42,11 @@ function house() {
   function house1() {
     //front wall
     // cannonJS body
-    const shape1 = new CANNON.Box(new CANNON.Vec3(1/2, 40/2, 135/2));
+    const shape1 = new CANNON.Box(new CANNON.Vec3(4/2, 40/2, 135/2));
     cubeBody = new CANNON.Body({shape: shape1, mass: mass});
     world.add(cubeBody)
     // threeJS Mesh
-    const shape = new THREE.BoxGeometry(1, 40, 135);
+    const shape = new THREE.BoxGeometry(4, 40, 135);
     const material = new THREE.MeshPhongMaterial({
       color: color1,
       map: houseTexture
@@ -56,12 +56,12 @@ function house() {
     cube.recieveShadow = true;
 
     // right wall from the view of facing left
-    const shapeBody = new CANNON.Box(new CANNON.Vec3(120/2, 40/2, 1/2));
+    const shapeBody = new CANNON.Box(new CANNON.Vec3(120/2, 40/2, 4/2));
     cube1Body = new CANNON.Body({shape: shapeBody, mass: mass});
     world.add(cube1Body);
 
     
-    const shape2 = new THREE.BoxGeometry(120, 40, 1);
+    const shape2 = new THREE.BoxGeometry(120, 40, 4);
     const material2 = new THREE.MeshPhongMaterial({
       color: color1,
       map: houseTexture
@@ -70,11 +70,11 @@ function house() {
     cube1.castShadow = true;
 
     // left wall
-    const shape3Body = new CANNON.Box(new CANNON.Vec3(120/2, 40/2, 1/2));
+    const shape3Body = new CANNON.Box(new CANNON.Vec3(120/2, 40/2, 4/2));
     cube3Body = new CANNON.Body({shape: shape3Body, mass: mass});
     world.add(cube3Body);
 
-    const shape3 = new THREE.BoxGeometry(120, 40, 1);
+    const shape3 = new THREE.BoxGeometry(120, 40, 4);
     const material3 = new THREE.MeshPhongMaterial({
       color: color1,
       map: houseTexture
@@ -83,11 +83,11 @@ function house() {
     cube3.castShadow = true;
 
     //back wall
-    const shape4Body = new CANNON.Box(new CANNON.Vec3(1/2, 40/2, 190/2));
+    const shape4Body = new CANNON.Box(new CANNON.Vec3(4/2, 40/2, 190/2));
     cube4Body = new CANNON.Body({shape: shape4Body, mass: mass});
     world.add(cube4Body);
 
-    const shape4 = new THREE.BoxGeometry(1, 40, 190);
+    const shape4 = new THREE.BoxGeometry(4, 40, 190);
     const material4 = new THREE.MeshPhongMaterial({
       color: color1,
       map: houseTexture
@@ -114,7 +114,7 @@ function house() {
     roofpatch2 = new THREE.Mesh(roofpatchGeometry2, roofpatchColor2);
 
     // inside wall
-    const shape7Body = new CANNON.Box(new CANNON.Vec3(90/2, 40/2, 1/2));
+    const shape7Body = new CANNON.Box(new CANNON.Vec3(90/2, 40/2, 4/2));
     inside_wallBody = new CANNON.Body({shape: shape7Body, mass: mass});
     world.add(inside_wallBody);
     
@@ -153,11 +153,11 @@ function house() {
 
   function house2() {
     //front wall
-    const shape11Body = new CANNON.Box(new CANNON.Vec3(1/2, 40/2, 155/2));
+    const shape11Body = new CANNON.Box(new CANNON.Vec3(4/2, 40/2, 155/2));
     cube11Body = new CANNON.Body({mass: mass, shape: shape11Body});
     world.add(cube11Body);
 
-    const shape11 = new THREE.BoxGeometry(1, 40, 155);
+    const shape11 = new THREE.BoxGeometry(4, 40, 155);
     const material11 = new THREE.MeshPhongMaterial({
       color: color2,
       map: houseTexture
@@ -167,11 +167,11 @@ function house() {
     cube11.receiveShadow = true;
 
     // right wall
-    const shape22Body = new CANNON.Box(new CANNON.Vec3(120/2, 40/2, 1));
+    const shape22Body = new CANNON.Box(new CANNON.Vec3(120/2, 40/2, 4));
     cube12Body = new CANNON.Body({mass: mass, shape: shape22Body});
     world.add(cube12Body);
 
-    const shape22 = new THREE.BoxGeometry(120, 40, 1);
+    const shape22 = new THREE.BoxGeometry(120, 40, 4);
     const material22 = new THREE.MeshPhongMaterial({
       color: color2,
       map: houseTexture
@@ -181,11 +181,11 @@ function house() {
     cube12.receiveShadow = true;
 
     // left wall
-    const shape33Body = new CANNON.Box(new CANNON.Vec3(120/2, 40/2, 1/2));
+    const shape33Body = new CANNON.Box(new CANNON.Vec3(120/2, 40/2, 4/2));
     cube33Body = new CANNON.Body({mass: mass, shape: shape33Body});
     world.add(cube33Body);
 
-    const shape33 = new THREE.BoxGeometry(120, 40, 1);
+    const shape33 = new THREE.BoxGeometry(120, 40, 4);
     const material33 = new THREE.MeshPhongMaterial({
       color: color2,
       map: houseTexture
@@ -195,11 +195,11 @@ function house() {
     cube33.receiveShadow = true;
 
     //back wall
-    const shape44Body = new CANNON.Box(new CANNON.Vec3(1/2, 40/2, 199/2));
+    const shape44Body = new CANNON.Box(new CANNON.Vec3(4/2, 40/2, 199/2));
     cube44Body = new CANNON.Body({mass: mass, shape: shape44Body});
     world.add(cube44Body);
 
-    const shape44 = new THREE.BoxGeometry(1, 40, 199);
+    const shape44 = new THREE.BoxGeometry(4, 40, 199);
     const material44 = new THREE.MeshPhongMaterial({
       color: color2,
       map: houseTexture
@@ -227,11 +227,11 @@ function house() {
     roofpatch1 = new THREE.Mesh(roofpatchGeometry1, roofpatchColor1);
 
     // inside wall
-    const inside_wall1Shape = new CANNON.Box(new CANNON.Vec3(90/2, 40/2, 1/2));
+    const inside_wall1Shape = new CANNON.Box(new CANNON.Vec3(90/2, 40/2, 4/2));
     inside_wall1Body = new CANNON.Body({mass: mass, shape: inside_wall1Shape});
     world.add(inside_wall1Body);
 
-    const shape55 = new THREE.BoxGeometry(90, 40, 1);
+    const shape55 = new THREE.BoxGeometry(90, 40, 4);
     const material55 = new THREE.MeshPhongMaterial({ color: roofcolor });
     inside_wall1 = new THREE.Mesh(shape55, material55);
 
@@ -264,11 +264,11 @@ function house() {
   //this is for the first house second floor
   function tophouse1() {
     // the front top of the hpuse
-    const front_topwallShape = new CANNON.Box(new CANNON.Vec3(1/2, 40/2, 144/2));
+    const front_topwallShape = new CANNON.Box(new CANNON.Vec3(4/2, 40/2, 144/2));
     front_topwall2Body = new CANNON.Body({mass: mass, shape: front_topwallShape});
     world.add(front_topwall2Body);
 
-    const front_topwallGeometry2 = new THREE.BoxGeometry(1, 40, 144);
+    const front_topwallGeometry2 = new THREE.BoxGeometry(4, 40, 144);
     const front_topwallMaterial2 = new THREE.MeshPhongMaterial({
       color: color1,
       map: houseTexture
@@ -279,11 +279,11 @@ function house() {
     );
 
     // the top left wall of the house
-    const front_topleftwallShape = new CANNON.Box(new CANNON.Vec3(120/2, 40/2, 1/2));
+    const front_topleftwallShape = new CANNON.Box(new CANNON.Vec3(120/2, 40/2, 4/2));
     front_topleftwall2Body = new CANNON.Body({mass: mass, shape: front_topleftwallShape});
     world.add(front_topleftwall2Body);
 
-    const front_topleftwallGeometry2 = new THREE.BoxGeometry(120, 40, 1);
+    const front_topleftwallGeometry2 = new THREE.BoxGeometry(120, 40, 4);
     const front_topleftwallMaterial2 = new THREE.MeshPhongMaterial({
       color: color1,
       map: houseTexture
@@ -295,11 +295,11 @@ function house() {
     );
 
     // the top right wall of the house
-    const front_toprightwallshape2 = new CANNON.Box(new CANNON.Vec3(120/2, 40/2, 1/2));
+    const front_toprightwallshape2 = new CANNON.Box(new CANNON.Vec3(120/2, 40/2, 4/2));
     front_toprightwall2Body = new CANNON.Body({mass: mass, shape: front_toprightwallshape2});
     world.add(front_toprightwall2Body);
 
-    const front_toprightwallGeometry2 = new THREE.BoxGeometry(120, 40, 1);
+    const front_toprightwallGeometry2 = new THREE.BoxGeometry(120, 40, 4);
     const front_toprightwallMaterial2 = new THREE.MeshPhongMaterial({
       color: color1,
       map: houseTexture
@@ -311,11 +311,11 @@ function house() {
     );
 
     // the top back wall
-    const front_topbackwallshape = new CANNON.Box(new CANNON.Vec3(1/2, 40/2, 140/2));
+    const front_topbackwallshape = new CANNON.Box(new CANNON.Vec3(4/2, 40/2, 140/2));
     front_topbackwall2Body = new CANNON.Body({mass: mass, shape: front_topbackwallshape});
     world.add(front_topbackwall2Body);
 
-    const front_topbackwallGeometry2 = new THREE.BoxGeometry(1, 40, 140);
+    const front_topbackwallGeometry2 = new THREE.BoxGeometry(4, 40, 140);
     const front_topbackwallMaterial2 = new THREE.MeshPhongMaterial({
       color: color1,
       map: houseTexture
@@ -326,22 +326,22 @@ function house() {
     );
 
     //inside wall 1
-    const insidewallshape = new CANNON.Box(new CANNON.Vec3(1/2, 30/2, 55/2));
+    const insidewallshape = new CANNON.Box(new CANNON.Vec3(4/2, 30/2, 55/2));
     insidewall11Body = new CANNON.Body({mass: mass, shape: insidewallshape});
     world.add(insidewall11Body);
 
-    const insidewallGeometry11 = new THREE.BoxGeometry(1, 30, 55);
+    const insidewallGeometry11 = new THREE.BoxGeometry(4, 30, 55);
     const insidewallMaterial11 = new THREE.MeshPhongMaterial({
       color: insideWallcolor
     });
     insidewall11 = new THREE.Mesh(insidewallGeometry11, insidewallMaterial11);
 
     // insidewall 2
-    const insidewall2shape = new CANNON.Box(new CANNON.Vec3(55/2, 30/2, 1/2));
+    const insidewall2shape = new CANNON.Box(new CANNON.Vec3(55/2, 30/2, 4/2));
     insidewall12Body = new CANNON.Body({mass: mass, shape: insidewall2shape});
     world.add(insidewall12Body);
 
-    const insidewallGeometry12 = new THREE.BoxGeometry(55, 30, 1);
+    const insidewallGeometry12 = new THREE.BoxGeometry(55, 30, 4);
     const insidewallMaterial12 = new THREE.MeshPhongMaterial({
       color: insideWallcolor
     });
@@ -381,11 +381,11 @@ function house() {
 
   function tophouse2() {
     // the front top of the hpuse
-    const front_topwallShape = new CANNON.Box(new CANNON.Vec3(1/2, 40/2, 156/2));
+    const front_topwallShape = new CANNON.Box(new CANNON.Vec3(4/2, 40/2, 156/2));
     front_topwall1Body = new CANNON.Body({material: wallmaterial, mass: mass, shape: front_topwallShape});
     world.add(front_topwall1Body);
 
-    const front_topwallGeometry = new THREE.BoxGeometry(1, 40, 156);
+    const front_topwallGeometry = new THREE.BoxGeometry(4, 40, 156);
     const front_topwallMaterial = new THREE.MeshPhongMaterial({
       color: color2,
       map: houseTexture
@@ -396,11 +396,11 @@ function house() {
     );
 
     // the top left wall of the house
-    const front_topleftwall1Shape = new CANNON.Box(new CANNON.Vec3(120/2, 40/2, 1/2));
+    const front_topleftwall1Shape = new CANNON.Box(new CANNON.Vec3(120/2, 40/2, 4/2));
     front_topleftwall1Body = new CANNON.Body({material: wallmaterial, mass: mass, shape: front_topleftwall1Shape});
     world.add(front_topleftwall1Body);
 
-    const front_topleftwallGeometry = new THREE.BoxGeometry(120, 40, 1);
+    const front_topleftwallGeometry = new THREE.BoxGeometry(120, 40, 4);
     const front_topleftwallMaterial = new THREE.MeshPhongMaterial({
       color: color2,
       map: houseTexture
@@ -412,11 +412,11 @@ function house() {
     );
 
     // the top right wall of the house
-    const front_toprightwall1Shape = new CANNON.Box(new CANNON.Vec3(120/2, 40/2, 1/2));
+    const front_toprightwall1Shape = new CANNON.Box(new CANNON.Vec3(120/2, 40/2, 4/2));
     front_toprightwall1Body = new CANNON.Body({material: wallmaterial, mass: mass, shape: front_toprightwall1Shape});
     world.add(front_toprightwall1Body);
 
-    const front_toprightwallGeometry = new THREE.BoxGeometry(120, 40, 1);
+    const front_toprightwallGeometry = new THREE.BoxGeometry(120, 40, 4);
     const front_toprightwallMaterial = new THREE.MeshPhongMaterial({
       color: color2,
       map: houseTexture
@@ -428,11 +428,11 @@ function house() {
     );
 
     // the top back wall
-    const front_topbackwallShape = new CANNON.Box(new CANNON.Vec3(1/2, 40/2, 156/2));
+    const front_topbackwallShape = new CANNON.Box(new CANNON.Vec3(4/2, 40/2, 156/2));
     front_topbackwall1Body = new CANNON.Body({material: wallmaterial, mass: mass, shape: front_topbackwallShape});
     world.add(front_topbackwall1Body);
 
-    const front_topbackwallGeometry = new THREE.BoxGeometry(1, 40, 156);
+    const front_topbackwallGeometry = new THREE.BoxGeometry(4, 40, 156);
     const front_topbackwallMaterial = new THREE.MeshPhongMaterial({
       color: color2,
       map: houseTexture
@@ -443,21 +443,21 @@ function house() {
     );
 
     //inside wall 1
-    const insidewall21Shape = new CANNON.Box(new CANNON.Vec3(1/2, 30/2, 55/2));
+    const insidewall21Shape = new CANNON.Box(new CANNON.Vec3(4/2, 30/2, 55/2));
     insidewall21Body = new CANNON.Body({material: wallmaterial, mass: mass, shape: insidewall21Shape});
     world.add(insidewall21Body);
 
-    const insidewallGeometry21 = new THREE.BoxGeometry(1, 30, 55);
+    const insidewallGeometry21 = new THREE.BoxGeometry(4, 30, 55);
     const insidewallMaterial21 = new THREE.MeshPhongMaterial({
       color: insideWallcolor
     });
     insidewall21 = new THREE.Mesh(insidewallGeometry21, insidewallMaterial21);
 
-    const insidewall22Shape = new CANNON.Box(new CANNON.Vec3(1/2, 30/2, 55/2));
+    const insidewall22Shape = new CANNON.Box(new CANNON.Vec3(4/2, 30/2, 55/2));
     insidewall22Body = new CANNON.Body({material: wallmaterial, mass: mass, shape: insidewall22Shape});
     world.add(insidewall22Body);
 
-    const insidewallGeometry22 = new THREE.BoxGeometry(55, 30, 1);
+    const insidewallGeometry22 = new THREE.BoxGeometry(55, 30, 4);
     const insidewallMaterial22 = new THREE.MeshPhongMaterial({
       color: insideWallcolor
     });

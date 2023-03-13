@@ -19,7 +19,7 @@ function box() {
     shape = new CANNON.Box(new CANNON.Vec3(7/2,7/2,7/2));
     // mass = -1;
     crateBody = new CANNON.Body({
-      mass: 1, //setting the mass of the crateBody
+      mass: 10, //setting the mass of the crateBody
       material: slipperyMaterial
     });
 
