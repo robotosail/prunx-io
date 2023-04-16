@@ -124,9 +124,9 @@ io.on("connection", (client) => {
     let unknownPlayer = true;
     for (let i = 0; i < list.length; i++) {
       if (data == list[i]) { // first check if playerid is in the list of all the players
-        client.broadcast.to(data).emit("kill_log2", client.id); // sends to the specific player
+        client.broadcast.to(data).emit("kill2", client.id); // sends to the specific player
         unknownPlayer = false;
-        return io.emit("kill_log", client.id, data); //sends to all players
+        return io.emit("kill", client.id, data) //sends to all players
       }
       // else if (data !== list[i]) {
       //   console.log("Not in list") // check if the player Id is in the list
@@ -150,7 +150,6 @@ io.on("connection", (client) => {
 
   //show the player the game code
   client.on("nameTag", function (data) {
-    console.log(data)
     client.broadcast.emit("nameTag", data);
   });
   //when the user enters the game

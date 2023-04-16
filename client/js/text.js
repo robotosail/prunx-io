@@ -1,6 +1,7 @@
 import * as THREE from "../library/three.module.js";
-import {scene, camera} from "./three.js";
-import { clientId} from "./client.js";
+import { scene, camera } from "./three.js";
+import { clientId } from "./client.js";
+import { otherPlayer, playerBody } from "./player.js";
 // import { io } from "https://cdn.socket.io/4.4.0/socket.io.esm.min.js";
 
 
@@ -59,29 +60,54 @@ class Text {
     transparent,
     castShadow
   ) {
-    let canvas1 = document.createElement("canvas");
+    const canvas1 = document.createElement("canvas");
+    const pxsize = size * 2.5
+    const borderThickness = 4
+    
     canvas1.setAttribute("id", "text_canvas");
-    var context1 = canvas1.getContext("2d");
-    context1.font = `Bold ${size} Arial`;
-    context1.fillStyle = color;
-    context1.fillText(msg, 50, 80);
+    // canvas1.width = pxsize
+    // canvas1.height = size-5
+
+    const ctx = canvas1.getContext("2d");
+    ctx.font = `Bold ${size}px Arial`;
+    var metrics = ctx.measureText(msg); //calculate the texts with
+    var textWidth = metrics.width; //calculate the texts with
+    ctx.lineWidth = borderThickness;
+
+    ctx.fillStyle = 'rgba(100, 160, 220, 1)';
+    ctx.strokeStyle = 'rgba(120, 50, 20, 1)';
+    // ctx.fillRect(borderThickness / 2, borderThickness / 2, textWidth + borderThickness, size * 1.4 + borderThickness, 6)
+    // creating the rounded borders 
+    
+    ctx.save() //save the current state
+    ctx.translate(canvas1.width/2 + 60, canvas1.height/2 + 20)
+    roundRect(ctx, borderThickness / 2, borderThickness / 2, textWidth + borderThickness, size * 1.4 + borderThickness, 6);
+    ctx.fillStyle = color;
+    ctx.rotate((360*Math.PI)/360) // covert radians to degrees - ((degrees * Math.PI)/360); from degrees to radians ((degrees * Math.PI)/100)
+    ctx.fillText(msg, 4, (size + 4));
+    ctx.restore();
+
+
     // canvas contents will be used for a texture
-    var texture1 = new THREE.Texture(canvas1);
+    const texture1 = new THREE.Texture(canvas1);
     texture1.needsUpdate = true;
 
-    var material1 = new THREE.MeshBasicMaterial({
+    const material1 = new THREE.SpriteMaterial({
       map: texture1,
-      side: THREE.DoubleSide
+      side:0
     });
+    console.log(material1)
     material1.transparent = transparent;
-
-    name = new THREE.Mesh(new THREE.PlaneGeometry(width, height), material1);
+    // instead of new mesh it is new sprite
+    name = new THREE.Sprite(material1);
+    name.scale.set(20,20,1.0);
     name.position.set(x, y, z);
-    name.rotation.x = -3.13;
-    name.rotation.y = 8;
     name.name = this.name;
-    name.castShadow = castShadow;
-    scene.add(name);
+    // name.center = new THREE.Vector3(0.3, 4, 0)
+    // name.castShadow = castShadow;
+    scene.add(name)
+    
+    // return name;
   }
 }
 
@@ -100,21 +126,36 @@ class Text {
     castShadow = false    //default
 */
 
-sock.on("nameTag", function(data){
+sock.on("nameTag", function (data) {
   const playername = new Text({
     name: "name",
     text: data,
-    x: camera.position.x,
+    x: playerBody.position.x,
     y: -16,
-    z: camera.position.z,
-    width: 5,
-    height: 5,
-    size: "15px",
+    z: playerBody.position.z - 50,
+    size: 15,
     color: "green",
-    transparent: false
+    transparent: true
   });
-});
+})
 
-export{
+// function for drawing rounded rectangles
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+}
+
+export {
   Text
 }

@@ -149,6 +149,19 @@
   height: 100vh;
   display: none;
   z-index: 60;
-  opacity: 100;
+  opacity: 0;
+  /* background-color: rgba(255, 0, 0, 0.563); */
   top: 0;
+  animation: test 5s ease-in-out infinite alternate-reverse;
+  /* animation: name duration timing-function delay iteration-count direction fill-mode; */
+  background-color: rgba(255, 0, 0, 0.281);
 }
+
+/* @keyframes test {
+  0%{
+      opacity:0;
+  }
+  100%{
+      opacity: 1;
+  }
+} */

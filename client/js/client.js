@@ -1,4 +1,4 @@
-import { updatePlayerPosition, createPlayer, addOtherPlayer, removeOtherPlayer, updatePlayerData, playerForId, playerHp, alive } from "./player.js";
+import { playerId, updatePlayerPosition, createPlayer, addOtherPlayer, removeOtherPlayer, updatePlayerData, playerForId, playerHp, alive } from "./player.js";
 // import { io } from "https://cdn.socket.io/4.4.0/socket.io.esm.min.js";
 import { scene } from "./three.js";
 import { vote, vote2, count1, vote_counter, fireflymap, count2 } from "./map.js";
@@ -60,7 +60,7 @@ function connects() {
   ////
 
   // //shows the player name tag
-  sock.emit("nameTag", sock)
+  sock.emit("nameTag", "what is ur name")
 
   //happens when user leaves game
   sock.on("LeaveGame", function (data) {
@@ -104,52 +104,61 @@ function connects() {
   const hp = new ProgressBar(document.getElementById("progress-bar"));
   // let hplive = 100;
 
-  let thisplayer;
+  let thisplayer, killer;
 
   //// response to player being killed (aka the player doing the shooting)
   /**
    * @param data the current player
    * @param player the player being shot at player
    */
-  sock.on("kill_log", function (data, player) {
+  sock.on("kill", function (data, player) {
+    killer = data;
     const currentPlayer = playerForId(player);
-    if (currentPlayer.hp == 0) {
-      console.log(`The player you are shooting (${currentPlayer.name}) at is dead`);
-      // removing the player from the scene
-      scene.remove(currentPlayer);
-      log({ text: `${player} killed by ${data}`, color: "red" });
-      sock.emit("resetPlayerPos");
+
+    if (currentPlayer.hp <= 0) {
+      scene.remove(currentPlayer); // removing the player from the scene
+
+      if (data == playerId) { // send a different message to the killer than to every one else
+        log({ text: `You killed ${player}`, color: "red" });
+      }
+      else {
+        log({ text: `${data} killed ${player}`, color: "red" });
+
+      }
+      // sock.emit("resetPlayerPos");
       // updating this info
       updatePlayerData();
       sock.emit("updatePosition", player);
     }
   });
-
+  
   /// --- only sent to the player being shot at
-  sock.on("kill_log2", function (data) {
+  sock.on("kill2", function (data) {
     const blood = document.getElementById("blood");
     thisplayer = playerForId(data);
 
     if (playerHp.value <= 0) { // check if the hp is less than 0
       playerHp.value = 0
       alive.value = false;
+      log({ text: `you were killed by ${killer}`, color: "red" }); // message to the player that was killed
     }
     else { // else reduce health by 10
-      playerHp.value -= 10
+      playerHp.value -= 3;
+      blood.style.opacity += 3;
     }
 
     thisplayer.hp = playerHp.value; // setting the players health on the server
     hp.setValue(thisplayer.hp); // chaning the health
-    updatePlayerData(); // updating the new info
-    sock.emit("updatePosition", data);
+    
 
-    if (playerHp.value <= 50) { // if player health is less than 50 show the blood
+    if (playerHp.value <= 80) { // if player health is less than 50 show the blood
       blood.style.display = "block";
-      blood.style.opacity += `${Math.abs(thisplayer.hp)}`;
     }
+
+    // increase health after 5 secs
     const addHp = setInterval(function () {
       if (playerHp.value !== 0 && playerHp.value !== 100) {
-        playerHp.value += 5
+        playerHp.value += 3
         hp.setValue(playerHp.value);
         blood.style.display = "none";
       }
@@ -157,7 +166,11 @@ function connects() {
         clearInterval(addHp)
       }
     }, 5000)
+
+    updatePlayerData(); // updating the new info
+    sock.emit("updatePosition", data);
   })
+  
   //happens when the game is updating
   sock.on("GameUpdate", function (data) {
     // alert(data);

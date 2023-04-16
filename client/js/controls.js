@@ -48,6 +48,7 @@ let controlers = function () {
         return;
       }
       else if (e.shiftKey) {
+        e.preventDefault();
         console.log("Shift pressed")
         return;
       }
@@ -76,7 +77,7 @@ let controlers = function () {
             // canJump = false;
             if (onGround == true) {
               playerBody.velocity.y = -jumpHeight.value;
-              onGround = false;
+              // onGround = false;
               
             }
             else {
